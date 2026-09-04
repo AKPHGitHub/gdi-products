@@ -1,0 +1,37 @@
+{
+  "name": "gdi-products",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve dist -l 3000",
+    "build": "tsc && cp index.html dist/ && cp -r public dist/ 2>/dev/null || true",
+    "lint": "eslint .",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "up": "docker compose up --build -d",
+    "down": "docker compose down",
+    "logs": "docker compose logs -f"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^10.9.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.4",
+    "globals": "^17.11.0",
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
+    "jsdom": "^30.0.1",
+    "serve": "^14.2.6",
+    "ts-jest": "^29.4.1",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,3 @@
+* { box-sizing: border-box; }
+.tile { border: 1px solid #ddd; }
+.skeleton { background: #e5e7eb; }
