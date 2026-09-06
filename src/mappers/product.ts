@@ -48,3 +48,14 @@ export function toProductsMinimal(raw: ApiProductMinimal[]): Product[] {
 export function toProducts(raw: ApiProduct[]): Product[] {
   return raw.map(toProduct);
 }
+
+/** Merge Phase 1 minimal Product[] + Phase 2 enriched Partial<Product>[] by id, enriching all 16 fields, no duplicates, preserves title/price/thumbnail */
+export function mergeProducts(prev: Product[], enriched: Partial<Product>[]): Product[] {
+  const map = new Map<number, Product>(prev.map((p) => [p.id, p]));
+  for (const e of enriched) {
+    if (e.id == null) continue;
+    const existing = map.get(e.id);
+    map.set(e.id, { ...(existing as Product), ...e } as Product);
+  }
+  return [...map.values()];
+}
