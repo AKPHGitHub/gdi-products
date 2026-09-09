@@ -1,8 +1,10 @@
 .PHONY: up down restart logs ps build test dev clean
 
-# Default: bring up dev (plain React + TS, no Vite)
+# Default: bring up dev (plain React + TS, no Vite) — builds on host first so dist is present for volume mount
 up:
-	docker compose up --build -d
+	npm run build
+	docker compose build
+	docker compose up -d
 	@echo "→ http://localhost:3000"
 
 down:

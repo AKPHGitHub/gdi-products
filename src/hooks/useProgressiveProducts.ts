@@ -1,20 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchClient } from '../api/fetchClient';
-import { toProductMinimal, toProduct, mergeProducts } from '../mappers/product';
-import type { Product } from '../types/product';
-import type { ApiProduct, ApiProductMinimal } from '../api/product';
-import type { ProductsResponse } from '../api/response';
+import { fetchClient } from '../api/fetchClient.js';
+import { toProductMinimal, toProduct, mergeProducts } from '../mappers/product.js';
+import type { Product } from '../types/product.js';
+import type { ApiProduct, ApiProductMinimal } from '../api/product.js';
+import type { ProductsResponse } from '../api/response.js';
+import { appConfig } from '../config/appConfig.js';
 
-const BASE = 'https://dummyjson.com/products';
+const BASE = appConfig.apiBaseUrl;
+const LIMIT = appConfig.tilesPerPage;
 
 export function useProgressiveProducts(initialPage = 1) {
   const [page, setPage] = useState(initialPage);
   const [pageKey, setPageKey] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
+  const [total, setTotal] = useState<number | null>(null);
   const [phase1, setPhase1] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
   const [phase2, setPhase2] = useState<{ enriching: boolean; error: string | null }>({ enriching: false, error: null });
   const pageKeyRef = useRef(0);
   const controllersRef = useRef<{ p1: AbortController | null; p2: AbortController | null }>({ p1: null, p2: null });
+  const totalPages = total != null ? Math.ceil(total / LIMIT) : null;
+  const hasNext = totalPages == null ? true : page < totalPages;
+  const hasPrev = page > 1;
 
   useEffect(() => {
     pageKeyRef.current = pageKey;
@@ -26,16 +32,17 @@ export function useProgressiveProducts(initialPage = 1) {
     const key = pageKey;
 
     setPhase1({ loading: true, error: null });
-    const skip = (page - 1) * 16;
+    const skip = (page - 1) * LIMIT;
 
-    fetchClient<ProductsResponse<ApiProductMinimal>>(`${BASE}?limit=16&skip=${skip}&select=title,price,thumbnail`, { signal: c1.signal })
+    fetchClient<ProductsResponse<ApiProductMinimal>>(`${BASE}?limit=${LIMIT}&skip=${skip}&select=title,price,thumbnail`, { signal: c1.signal })
       .then((data) => {
         if (key !== pageKeyRef.current) return;
+        setTotal(data.total);
         const minimal = data.products.map(toProductMinimal);
         setProducts(minimal);
         setPhase1({ loading: false, error: null });
         setPhase2({ enriching: true, error: null });
-        return fetchClient<ProductsResponse<ApiProduct>>(`${BASE}?limit=16&skip=${skip}`, { signal: c2.signal });
+        return fetchClient<ProductsResponse<ApiProduct>>(`${BASE}?limit=${LIMIT}&skip=${skip}`, { signal: c2.signal });
       })
       .then((full) => {
         if (!full || key !== pageKeyRef.current) return;
@@ -57,9 +64,15 @@ export function useProgressiveProducts(initialPage = 1) {
     };
   }, [page, pageKey]);
 
-  const goNext = () => setPage((p) => p + 1);
-  const goPrev = () => setPage((p) => Math.max(1, p - 1));
+  const goNext = () => {
+    setPage((p) => (hasNext ? p + 1 : p));
+    if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+  const goPrev = () => {
+    setPage((p) => Math.max(1, p - 1));
+    if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo({ top: 0, behavior: 'auto' });
+  };
   const retry = () => setPageKey((k) => k + 1);
 
-  return { products, page, phase1, phase2, setPage, goNext, goPrev, retry, pageKey };
+  return { products, page, phase1, phase2, setPage, goNext, goPrev, retry, pageKey, total, totalPages, hasNext, hasPrev };
 }

@@ -1,5 +1,5 @@
 
-export type { PaginatedResponse, ProductsResponse } from './response';
+export type { PaginatedResponse, ProductsResponse } from './response.js';
 
 /** Raw product from API — https://dummyjson.com/products */
 export interface ApiProduct {

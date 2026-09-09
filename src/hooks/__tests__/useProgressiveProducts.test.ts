@@ -1,8 +1,11 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useProgressiveProducts } from '../useProgressiveProducts';
-import * as fc from '../../api/fetchClient';
+import * as fc from '../../api/fetchClient.js';
 
-jest.mock('../../api/fetchClient');
+jest.mock('../../api/fetchClient.js', () => ({
+  fetchClient: jest.fn(),
+}));
+
 
 function deferred<T>() {
   let resolve: (v: T) => void, reject: (e: unknown) => void;

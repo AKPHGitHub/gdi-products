@@ -1,5 +1,5 @@
-import type { ApiProduct, ApiProductMinimal } from '../api/product';
-import type { Product } from '../types/product';
+import type { ApiProduct, ApiProductMinimal } from '../api/product.js';
+import type { Product } from '../types/product.js';
 
 /** Map Phase 1 minimal raw → internal Product (fast first paint) */
 export function toProductMinimal(raw: ApiProductMinimal): Product {
