@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx serve dist -l 3000",
-    "build": "tsc && cp index.html dist/ && mkdir -p dist/src && cp src/*.css dist/src/ 2>/dev/null || true && cp -r public dist/ 2>/dev/null || true",
+    "prebuild": "node -e \"const fs=require('fs');let t;try{t=parseInt(fs.readFileSync('.env','utf8').match(/TILES_PER_PAGE\\\\s*=\\\\s*(\\\\d+)/)[1],10)}catch(e){const m=fs.readFileSync('src/config/appConfig.ts','utf8').match(/TILES_PER_PAGE.*\\\\?\\\\?\\\\s*'(\\\\d+)'/)||fs.readFileSync('src/config/appConfig.ts','utf8').match(/tilesPerPage:\\\\s*(\\\\d+)/);t=m?parseInt(m[1],10):16}if(t<4||t>100){console.error('tilesPerPage must be 4–100, got '+t);process.exit(1)}console.log('Config valid: tilesPerPage='+t)\"",
+    "build": "tsc && cp index.html dist/ && mkdir -p dist/src && cp src/*.css dist/src/ && (cp -r public dist/ 2>/dev/null || true)",
     "lint": "eslint .",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",

@@ -4,4 +4,8 @@ services:
       context: .
       target: dev
     ports: ["3000:3000"]
+    env_file: .env
+    environment:
+      - API_BASE_URL=${API_BASE_URL}
+      - TILES_PER_PAGE=${TILES_PER_PAGE}
     volumes: [".:/app", "/app/node_modules"]

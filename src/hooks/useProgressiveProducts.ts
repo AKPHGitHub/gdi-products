@@ -14,8 +14,8 @@ export function useProgressiveProducts(initialPage = 1) {
   const [pageKey, setPageKey] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState<number | null>(null);
-  const [phase1, setPhase1] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
-  const [phase2, setPhase2] = useState<{ enriching: boolean; error: string | null }>({ enriching: false, error: null });
+  const [phase1, setPhase1] = useState<{ loading: boolean; error: string | null }>({ loading: true, error: null });
+  const [phase2, setPhase2] = useState<{ enriching: boolean; error: string | null }>({ enriching: true, error: null });
   const pageKeyRef = useRef(0);
   const controllersRef = useRef<{ p1: AbortController | null; p2: AbortController | null }>({ p1: null, p2: null });
   const totalPages = total != null ? Math.ceil(total / LIMIT) : null;
@@ -36,7 +36,9 @@ export function useProgressiveProducts(initialPage = 1) {
 
     fetchClient<ProductsResponse<ApiProductMinimal>>(`${BASE}?limit=${LIMIT}&skip=${skip}&select=title,price,thumbnail`, { signal: c1.signal })
       .then((data) => {
-        if (key !== pageKeyRef.current) return;
+        if (key !== pageKeyRef.current) {
+          return;
+        }
         setTotal(data.total);
         const minimal = data.products.map(toProductMinimal);
         setProducts(minimal);
@@ -52,7 +54,11 @@ export function useProgressiveProducts(initialPage = 1) {
       })
       .catch((err: unknown) => {
         const e = err as { name?: string; message?: string };
-        if (e.name === 'AbortError') return;
+        if (e.name === 'AbortError') {
+          setPhase1((s) => (s.loading ? { loading: false, error: null } : s));
+          setPhase2((s) => (s.enriching ? { enriching: false, error: null } : s));
+          return;
+        }
         // route error to correct phase
         setPhase1((s) => (s.loading ? { loading: false, error: e.message ?? 'Unknown error' } : s));
         setPhase2((s) => (s.enriching ? { enriching: false, error: e.message ?? 'Unknown error' } : s));

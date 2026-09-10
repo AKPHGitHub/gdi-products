@@ -4,9 +4,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+ARG API_BASE_URL
+ARG TILES_PER_PAGE
+ENV API_BASE_URL=$API_BASE_URL
+ENV TILES_PER_PAGE=$TILES_PER_PAGE
 RUN npm run build
 EXPOSE 3000
-CMD ["npx", "serve", "dist", "-l", "3000"]
+CMD ["sh", "-c", "mkdir -p dist && cat > dist/config.js <<EOF\nwindow.__APP_CONFIG__ = { API_BASE_URL: \"${API_BASE_URL:-https://dummyjson.com/products}\", TILES_PER_PAGE: \"${TILES_PER_PAGE:-16}\" };\nEOF\ncat dist/config.js && npx serve dist -l 3000"]
 
 # Stage build: compile TS
 FROM node:20-alpine AS build
