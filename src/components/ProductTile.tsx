@@ -3,7 +3,7 @@ import type { Product } from '../types/product.js';
 export function ProductTile({ product, enriching }: { product: Product; enriching: boolean }) {
   const isEnriching = enriching && product.rating == null;
   return (
-    <div className="tile flex flex-col border p-2 gap-1">
+    <div data-testid={`tile-${product.id}`} className="tile flex flex-col border p-2 gap-1">
       <img src={product.thumbnail} alt={product.title} className="aspect-square object-cover w-full" />
       <h3 className="font-bold truncate">{product.title}</h3>
       <p>${product.price}</p>
